@@ -4,7 +4,7 @@
             <div class="content">
     <div class="content-right">
                     <div class="content-right-title">
-                        <p>这是试题的题目</p>
+                        <p>{{examtitle}}</p>
                     </div>
                     <p style="position: absolute;right: 15%;margin-top: -10px;">
                         <div style="height: 30px;width:100%;margin-left: 10px;" v-if = "scoreShow">得分：{{studentAllScore}} / {{AllScore}}</div>
@@ -26,12 +26,13 @@
                                         
                                 </div>
                                 
-                                <el-radio-group v-model="studentAnswer[index]" style="margin-top: 20px;" v-for = "(item2,index2) in parseInt(item.count.toString())" :key = index2>
+                                <el-radio-group v-model="studentAnswer[index]" style="margin-top: 20px;" v-for = "(item2,index2) in parseInt(item.optionnum.toString())" :key = index2>
                                     <el-radio id="cho"  :disabled = canchoose :label=answerItem[index2] style = "margin-left:40px">{{choose[index2]}}</el-radio>
                                 </el-radio-group>
                             </div>
                         </div>
-                        <el-button type = "success" style="width: 40%;margin: 30px 30%;" @click="upexam">提交试卷</el-button>
+                        <!-- <el-button type = "success" style="width: 40%;margin: 30px 30%;" @click="upexam">提交试卷</el-button> -->
+                        <el-button type = "success" style="width: 40%;margin: 30px 30%;" @click="saveTest">确定发布</el-button>
                     </div>
                 </div>
             </div>
@@ -42,6 +43,7 @@
 <script lang = "ts">
 import { Edit ,Close} from '@element-plus/icons'
 import {ref, reactive, onBeforeMount, getCurrentInstance} from "vue"
+import { useStore } from "vuex"
 export default{
     components: {
    
@@ -51,15 +53,16 @@ export default{
   },
     setup(){
         let { proxy }:any = getCurrentInstance();
-
+        const store = useStore()
+        let userInfo = store.state.UserInfo
 
         type obj = {
-            ismust: boolean;
-            score: number | string;
-            imgsrc:string;
-            answer:number;
-            count:number | string
-            }
+            ismust: any;
+            imgsrc: any;
+            answer: any;
+            score: any;
+            optionnum: any;
+        }
 
         let form:Array<obj> = [
           
@@ -69,16 +72,26 @@ export default{
             const allForm:Array<obj> = reactive([
                 
             ])
-        proxy.$axios.get('http://localhost:3000/teacher').then((res:any) => {
+            let examtitle = ref('')
+        proxy.$axios.post('http://localhost:3000/teacher/getexam',{
+            teacher_phone:store.state.UserInfo.phone,
+            examindex:store.state.UserInfo.totalexam
+            // teacher_phone:"18172642994",
+            // examindex:"5"
+
+        }).then((res:any) => {
             form = res.data.message;
             console.log(form);
+            
+            examtitle.value =  res.data.message[0].examtitle
+
             for (let i = 0; i < form.length; i++) {
                 const form3:obj = {
                         ismust:form[i].ismust,
                         imgsrc:form[i].imgsrc,
                         answer:form[i].answer,
                         score:form[i].score,
-                        count:form[i].count
+                        optionnum:form[i].optionnum
                     }
                 trueAnswer[i] = form[i].answer
                 AllScore.value += parseInt(form[i].score.toString())
@@ -134,8 +147,31 @@ export default{
            1,2,3,4,5,6,7
        ]
        )
+        const saveTest = () =>{
+            var FileSaver = require('file-saver');
+            const strobj = 
+                {
+                    "url":"http://localhost:8080/doexam?phone=" + store.state.UserInfo.phone +  "&index=" + store.state.UserInfo.totalexam,
+                    "uid":true,
+                    "nickname":true,
+                    "identity":true,
+                    "size":"800x600,610x396",
+                    "classin_authority":false
+                }
+            let str = JSON.stringify(strobj)
 
-       
+            var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
+            FileSaver.saveAs(blob, "test.edu");
+        }
+        const saveTest2 = () =>{
+            
+            proxy.$router.push({path:"/doexam",query:{
+                phone:store.state.UserInfo.phone,
+                index:store.state.UserInfo.totalexam
+        }})
+
+        }
+        
        return {
         form,
         allForm,
@@ -148,7 +184,9 @@ export default{
         studentScore,
         scoreShow,
         studentAllScore,
-        AllScore
+        AllScore,
+        examtitle,
+        saveTest
        }
 
     }

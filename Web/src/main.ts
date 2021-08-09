@@ -6,6 +6,7 @@ import store from './store'
 import './assets/css/global.css';
 import ElementPlus from 'element-plus';
 import 'element-plus/lib/theme-chalk/index.css';
+import { saveAs } from 'file-saver';
 
 import axios from './http'
 

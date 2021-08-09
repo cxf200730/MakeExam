@@ -5,7 +5,21 @@ class teacherModel {
 	findAll(){
 		return db.query( 'select * from teacher ', [])
 	}
-
+	//学生查找指定试卷
+	doExam(query){
+		const teacher_phone = query.phone
+		const examindex = query.index
+		const sql = "select * from exam where teacher_phone = '" + teacher_phone + "' and examindex = '" + examindex + "'"
+		return db.query( sql, [])
+	}
+	//查找某份试卷所有题目
+	getExam(body){
+		const teacher_phone = body.teacher_phone
+		const examindex = body.examindex
+		const sql = "select * from exam where teacher_phone = '" + teacher_phone + "' and examindex = '" + examindex + "'"
+		return db.query( sql, [])
+	}
+	
 	//添加老师(注册)
 	addTeacher(body){
 		const sql = 
@@ -21,6 +35,21 @@ class teacherModel {
 		return db.query( sql, [])
 	}
 
+	//添加题目
+	addTopic(body){
+		var examtitle = body.examtitle;
+		var teacher_phone = body.teacher_phone;
+		var examindex = body.examindex;
+		var ismust = body.ismust;
+		var imgsrc = body.imgsrc;
+		var score = body.score;
+		var optionnum = body.optionnum;
+		var answer = body.answer;
+		const sql ="insert into exam(examtitle,teacher_phone,examindex,ismust,imgsrc,score,optionnum,answer)VALUES('" + examtitle + "','" + teacher_phone + "','"
+		+ examindex + "','"+ ismust + "','"+ imgsrc + "','"+ score + "','"+ optionnum + "','"+ answer + "')"
+		console.log(sql)
+		return db.query( sql, [body])
+	}
 	//登录
 	Login(body){
 		const sql = "select * from teacher where phone = '" + body.phone + "' and password = '" + body.password + "'"

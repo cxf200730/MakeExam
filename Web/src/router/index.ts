@@ -22,6 +22,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import( '../views/make.vue')
   },
   {
+    path: '/doexam',
+    name: 'DoExam',
+    component: () => import( '../views/doexam.vue')
+  },
+  {
     path: '/:catchAll(.*)',
     name: '/404',
     component: () => import( '../views/404.vue')

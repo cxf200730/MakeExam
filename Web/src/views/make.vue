@@ -62,12 +62,12 @@
                                     <img  :src= item.imgsrc  style="width: 600px;margin-left:30px"/>
                                     （{{item.score}}分）
                                 </div>
-                                <el-radio-group v-model=item.answer style="margin-top: 20px;" v-for = "index2 in parseInt(item.count.toString())" :key = index2>
+                                <el-radio-group v-model=item.answer style="margin-top: 20px;" v-for = "index2 in parseInt(item.optionnum.toString())" :key = index2>
                                     <el-radio :label=index2 style = "margin-left:40px">{{choose[index2 - 1]}}</el-radio>
                                 </el-radio-group>
                             </div>
                         </div>
-                        <el-button type = "success" style="width: 40%;margin: 30px 30%;" @click="makeexam">提交试卷</el-button>
+                        <el-button type = "success" style="width: 40%;margin: 30px 30%;" @click="testPost">提交试卷</el-button>
                     </div>
                 </div>
             </div>
@@ -100,7 +100,7 @@
 
                     <el-form-item label="选项个数" :label-width="formLabelWidth">
                     <el-select-v2
-                        v-model="addForm.count"
+                        v-model="addForm.optionnum"
                         :options="options2"
                         placeholder="请选择"
                         style="width: 200px;"
@@ -143,6 +143,7 @@
     </el-container>
 </template>
 <script lang="ts">
+import { user } from "@/utils/login";
 import { ref, reactive, getCurrentInstance } from "vue"
 import { useStore } from "vuex"
 export default{
@@ -204,11 +205,14 @@ export default{
           }
 
           interface IAllForm{
+                examtitle:string,
+                teacher_phone:string,
+                examindex:string,
                 ismust:boolean,
                 imgsrc:string,
                 answer:number,
                 score:number,
-                count:number | string
+                optionnum:number | string
           }
         const allForm:Array<IAllForm> = reactive([])
 
@@ -219,13 +223,7 @@ export default{
         const dialogFormVisible = ref(false);
         const changeTitleVisible = ref(false);
         
-        interface form  {
-            ismust: boolean;
-            score: number;
-            imgsrc:string;
-            answer:number;
-            count:number
-        };
+       
         enum choose  {
            "A",
            "B",
@@ -240,7 +238,7 @@ export default{
             score: 5,
             imgsrc:'',
             answer:2,
-            count:4
+            optionnum:4
         })
         const activeNames = reactive(['1', '2', '3']);
         const options = reactive(
@@ -277,12 +275,15 @@ export default{
         dialogFormVisible.value = false;
         fileList.value = []
     
-        const test: form = {
+        const test = {
+            examtitle:examTitle.value,
+            teacher_phone:store.state.UserInfo.phone,
+            examindex:store.state.UserInfo.totalexam,
             ismust: addForm.ismust,
-            score: addForm.score,
             imgsrc: imageUrl.value,
+            score: addForm.score,
+            optionnum:addForm.optionnum,
             answer:addForm.answer,
-            count:addForm.count
         }
         console.log(test);
 
@@ -323,21 +324,22 @@ export default{
             
             for (let i = allForm.length - 1; i >  -1; i--) {
                 proxy.$axios.post('http://localhost:3000/teacher/addtopic',{
-                    table:1604,
-                    id:i,
+                    examtitle:examTitle.value,
+                    teacher_phone:store.state.UserInfo.phone,
+                    examindex:store.state.UserInfo.totalexam,
                     ismust:allForm[i].ismust,
                     imgsrc:allForm[i].imgsrc,
-                    answer:allForm[i].answer,
                     score:allForm[i].score,
-                    count:allForm[i].count,
+                    optionnum:allForm[i].optionnum,
+                    answer:allForm[i].answer,
                 }).then((res:any) => {
-                //alert("添加新的题目成功")
+                alert("添加新的题目成功")
                 })    
                       
             }
-            // proxy.$router.push("http://localhost:8080/exam");
-            let routeData = proxy.$router.resolve({ path: '/exam'});
-            window.open(routeData.href, '_blank');
+             proxy.$router.push("http://localhost:8080/exam");
+            // let routeData = proxy.$router.resolve({ path: '/exam'});
+            // window.open(routeData.href, '_blank');
         }
 
         const makeexam = () => {

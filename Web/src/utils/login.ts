@@ -8,8 +8,8 @@ interface IUser{
 
 
 export const user  = ref<IUser>({
-    phone:"",
-    password:""
+    phone:"18172642994",
+    password:"123456"
 })
 
 export const rules = ref({
