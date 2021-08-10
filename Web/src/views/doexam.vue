@@ -11,6 +11,10 @@
                         </p>
                         <hr />
                         <div class="content-right-exam">
+                            <div  class="main" style="display: flex;flex-direction: column;" v-for="(item, index) in parseInt(stu.toString())">
+                                <el-input :disabled=stucanin v-model="stuNameCode[parseInt(index.toString())]" :placeholder=stuInfo[parseInt(index.toString())] style="margin-top: 30px;width: 300px;margin-left:40px"></el-input>
+                            </div>
+
                             <div class="main" style="display: flex;flex-direction: column;" v-for="(item,index) in allForm" :key = index>
                                <div class="exam-item">
                                     <div style="width: 95%;height: auto;margin-top: 30px;display:flex ">
@@ -54,7 +58,9 @@
             let { proxy }:any = getCurrentInstance();
             const store = useStore()
             let userInfo = store.state.UserInfo
-    
+            let stuInfo = ref(["姓名","学号"])
+            let stuNameCode = ref([])
+            
             type obj = {
                 ismust: any;
                 imgsrc: any;
@@ -75,14 +81,16 @@
 
                 let phone = proxy.$route.query.phone;
                 let index = proxy.$route.query.index;
-                console.log(phone + " + " + index);
+                let stu = reactive(proxy.$route.query.stu);
+
+                console.log(phone + " + " + index + " + " + stu);
                 
             proxy.$axios.get("http://localhost:3000/teacher/doexam?index=" + index + "&phone=" + phone).then((res:any) => {
                 console.log(res.data);
                 
                 form = res.data.message;
                 console.log(form);
-                
+                if(res.data.message[0] !== 0){
                 examtitle.value =  res.data.message[0].examtitle
     
                 for (let i = 0; i < form.length; i++) {
@@ -97,6 +105,10 @@
                     AllScore.value += parseInt(form[i].score.toString())
                     allForm.push(form3)
                 }
+            }else{
+                console.log("没有题目");
+                
+            }
             })
     
           
@@ -112,11 +124,18 @@
                "G"
            }
            let canchoose = ref(false)
-    
+           let stucanin = ref(false)
            let panduan:Array<boolean>= reactive([]);
            const upexam = () => {
-            console.log("学生的答案" + studentAnswer)
-            console.log("正确答案" + trueAnswer)
+
+            //    console.log("学生的答案" + studentAnswer + typeof(studentAnswer))
+            //    console.log(JSON.stringify(studentAnswer).toString()  + typeof(studentAnswer));
+            // console.log(studentAnswer);
+            
+               
+               console.log("学生的姓名：" + stuNameCode.value[0])
+               console.log("学生的学号：" + stuNameCode.value[1])
+               console.log("正确答案" + trueAnswer)
             for (let i = 0; i < trueAnswer.length; i++) {
                 if(trueAnswer[i] == studentAnswer[i]){
                     panduan[i] = true
@@ -130,6 +149,17 @@
             console.log("学生得分" + studentScore)
             canchoose.value = true
             scoreShow.value = true
+            stucanin.value = true
+            proxy.$axios.post('http://localhost:3000/student/up',{
+                 name:stuNameCode.value[0],
+                 code:stuNameCode.value[1],
+                 phone:phone,
+                 index:index,
+                 answer:studentAnswer + ""
+            }).then((res:any) => {
+                console.log(res.data);
+                
+            })
            }
            let studentAnswer = reactive([
                
@@ -162,6 +192,7 @@
     
                 var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
                 FileSaver.saveAs(blob, "test.edu");
+                
             }
             const saveTest = () =>{
                 proxy.$axios.get('http://localhost:3000/teacher/doexam?index=8&phone=18172642994').then((res:any) => {
@@ -171,6 +202,10 @@
             }
             
            return {
+            stucanin,
+            stu,
+            stuInfo,
+            stuNameCode,
             form,
             allForm,
             choose,

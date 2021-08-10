@@ -19,7 +19,14 @@ class teacherModel {
 		const sql = "select * from exam where teacher_phone = '" + teacher_phone + "' and examindex = '" + examindex + "'"
 		return db.query( sql, [])
 	}
-	
+	//统计提交情况
+	getResult(body){
+		const teacher_phone = body.teacher_phone
+		const examindex = body.examindex
+
+		const sql = "select * from student where teacher_phone = '" + teacher_phone + "' and examindex = '" + examindex + "'"
+		return db.query( sql, [])
+	}
 	//添加老师(注册)
 	addTeacher(body){
 		const sql = 

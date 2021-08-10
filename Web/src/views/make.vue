@@ -9,9 +9,9 @@
                     <el-collapse v-model="activeNames" @change="handleChange">
                         <el-collapse-item title="考生信息" name="1" >
                             <div style="width: 100%;display: flex;flex-flow: row wrap; justify-content: space-around;height: auto;">
-                                <el-button type = "primary" plain round size = "mini" @click="test"  icon="el-icon-user-solid" >姓名</el-button>
+                                <el-button type = "primary" plain round size = "mini" @click="addName"  icon="el-icon-user-solid" >姓名</el-button>
                                 <el-button type = "primary" plain round size = "mini" @click="" icon="el-icon-user">基本信息</el-button>
-                                <el-button type = "primary" plain round size = "mini" @click="" icon="el-icon-s-cooperation">部门</el-button>
+                                <el-button type = "primary" plain round size = "mini" @click="addCode" icon="el-icon-s-cooperation">学号</el-button>
                                 <el-button type = "primary" plain round size = "mini" @click="" icon="el-icon-message">其他信息</el-button>
                             </div>
                             
@@ -53,6 +53,10 @@
                     </div>
                     <hr />
                     <div class="content-right-exam">
+                        <div  class="main" style="display: flex;flex-direction: column;" v-for="(item, index) in stuInfo">
+                            <el-input v-model="stuName" :placeholder=stutitle[parseInt(index.toString())] style="margin-top: 30px;width: 300px;margin-left:40px"></el-input>
+                        </div>
+
                         <div class="main" style="display: flex;flex-direction: column;" v-for="(item,index) in allForm" :key = index>
                            <div class="exam-item">
                                 <div style="width: 750px;height: auto;margin-top: 30px;display:flex ">
@@ -72,6 +76,9 @@
                 </div>
             </div>
         </el-main>
+
+       
+
         <el-dialog title="设置题目" v-model="changeTitleVisible" width="30%" :close-on-click-modal = "false" :close-on-press-escape = "false" :show-close = "false">
             <el-form :model="addForm" style="width: 90%;">
                 <el-form-item label="试卷题目">
@@ -219,10 +226,9 @@ export default{
 
     
 
-
+       
         const dialogFormVisible = ref(false);
         const changeTitleVisible = ref(false);
-        
        
         enum choose  {
            "A",
@@ -240,7 +246,7 @@ export default{
             answer:2,
             optionnum:4
         })
-        const activeNames = reactive(['1', '2', '3']);
+        const activeNames = reactive(['1', '2']);
         const options = reactive(
             Array.from({ length: 201 }).map((_, idx) => ({
           value: `${idx * 0.5}`,
@@ -271,6 +277,30 @@ export default{
          addForm.imgsrc = file.url
       }
 
+      let stutitle: Array<string> = reactive([])
+      const stuInfo:any = reactive([])
+      let stuName = ref("")
+    const addName = () => {
+        stutitle.push("姓名")
+        const nameInput = {
+            teacher_phone:store.state.UserInfo.phone,
+            examindex:store.state.UserInfo.totalexam,
+            title:"姓名",
+            name:""
+        }
+        stuInfo.push(nameInput);
+    };
+
+    const addCode = () => {
+        stutitle.push("学号")
+        const codeInput = {
+            teacher_phone:store.state.UserInfo.phone,
+            examindex:store.state.UserInfo.totalexam,
+            title:"学号",
+            code:""
+        }
+        stuInfo.push(codeInput);
+    };
       function addItem(){
         dialogFormVisible.value = false;
         fileList.value = []
@@ -333,10 +363,10 @@ export default{
                     optionnum:allForm[i].optionnum,
                     answer:allForm[i].answer,
                 }).then((res:any) => {
-                alert("添加新的题目成功")
                 })    
                       
             }
+            store.commit('stuInfo',stuInfo)
              proxy.$router.push("http://localhost:8080/exam");
             // let routeData = proxy.$router.resolve({ path: '/exam'});
             // window.open(routeData.href, '_blank');
@@ -357,6 +387,11 @@ export default{
         const examTitle = ref("点击修改试卷的题目")
         return{dialogFormVisible, 
             changeTitleVisible,
+            addName,
+            addCode,
+            stuName,
+            stutitle,
+            stuInfo,
             examTitle,
             formLabelWidth, 
             options, 

@@ -11,6 +11,10 @@
                     </p>
                     <hr />
                     <div class="content-right-exam">
+                        <div  class="main" style="display: flex;flex-direction: column;" v-for="(item, index) in stuInfo">
+                            <el-input v-model="stuNameCode[parseInt(index.toString())]" :placeholder=stuInfo[parseInt(index.toString())].title style="margin-top: 30px;width: 300px;margin-left:40px"></el-input>
+                        </div>
+
                         <div class="main" style="display: flex;flex-direction: column;" v-for="(item,index) in allForm" :key = index>
                            <div class="exam-item">
                                 <div style="width: 95%;height: auto;margin-top: 30px;display:flex ">
@@ -55,6 +59,11 @@ export default{
         let { proxy }:any = getCurrentInstance();
         const store = useStore()
         let userInfo = store.state.UserInfo
+        let stuInfo = store.state.stuInfo
+        let stuNameCode = ref([])
+        let stu = ref(0)
+        
+        
 
         type obj = {
             ismust: any;
@@ -75,28 +84,35 @@ export default{
             let examtitle = ref('')
         proxy.$axios.post('http://localhost:3000/teacher/getexam',{
             teacher_phone:store.state.UserInfo.phone,
-            examindex:store.state.UserInfo.totalexam
+            examindex:store.state.UserInfo.totalexam,
+            
             // teacher_phone:"18172642994",
             // examindex:"5"
 
         }).then((res:any) => {
             form = res.data.message;
             console.log(form);
-            
-            examtitle.value =  res.data.message[0].examtitle
+            if(res.data.message.length !== 0){
 
-            for (let i = 0; i < form.length; i++) {
-                const form3:obj = {
-                        ismust:form[i].ismust,
-                        imgsrc:form[i].imgsrc,
-                        answer:form[i].answer,
-                        score:form[i].score,
-                        optionnum:form[i].optionnum
-                    }
-                trueAnswer[i] = form[i].answer
-                AllScore.value += parseInt(form[i].score.toString())
-                allForm.push(form3)
+                examtitle.value =  res.data.message[0].examtitle
+    
+                for (let i = 0; i < form.length; i++) {
+                    const form3:obj = {
+                            ismust:form[i].ismust,
+                            imgsrc:form[i].imgsrc,
+                            answer:form[i].answer,
+                            score:form[i].score,
+                            optionnum:form[i].optionnum
+                        }
+                    trueAnswer[i] = form[i].answer
+                    AllScore.value += parseInt(form[i].score.toString())
+                    allForm.push(form3)
+                }
+            }else{
+                console.log("没有题目");
+                
             }
+
         })
 
       
@@ -148,10 +164,21 @@ export default{
        ]
        )
         const saveTest = () =>{
+            for (let i = 0; i < stuInfo.length; i++) {
+            if(stuInfo[i].title == "姓名"){
+                stu.value++;
+            }else if(stuInfo[i].title == "学号"){
+                stu.value++;
+            }
+            
+            }
+            console.log(stuInfo);
+            console.log(stu.value);
+            
             var FileSaver = require('file-saver');
             const strobj = 
                 {
-                    "url":"http://localhost:8080/doexam?phone=" + store.state.UserInfo.phone +  "&index=" + store.state.UserInfo.totalexam,
+                    "url":"http://localhost:8080/doexam?phone=" + store.state.UserInfo.phone +  "&index=" + store.state.UserInfo.totalexam + "&stu=" + stu.value,
                     "uid":true,
                     "nickname":true,
                     "identity":true,
@@ -162,6 +189,8 @@ export default{
 
             var blob = new Blob([str], {type: "text/plain;charset=utf-8"});
             FileSaver.saveAs(blob, "test.edu");
+            stu.value = 0;
+            proxy.$router.push('result')
         }
         const saveTest2 = () =>{
             
@@ -173,6 +202,8 @@ export default{
         }
         
        return {
+        stuNameCode,
+        stuInfo,
         form,
         allForm,
         choose,

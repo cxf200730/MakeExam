@@ -9,7 +9,7 @@ const fs = require("fs");
 var app = express();
 // const teacherRouter = require('./routes/teacher.js')
 const teacherRouter = require('./routes/teacher.js')
-// const examRouter = require('./routes/exam.js')
+const studentRouter = require('./routes/student.js')
 const cors = require('cors')
 app.use(cors())
 // 添加json解析
@@ -24,7 +24,7 @@ app.get('/token', (req, res, next) => {
 })
 
 
-// app.use( '/teacher', teacherRouter)
+app.use( '/student', studentRouter)
 app.use( '/teacher', teacherRouter)
 // app.use( '/exam', examRouter)
 

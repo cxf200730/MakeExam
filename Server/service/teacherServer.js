@@ -17,6 +17,12 @@ class teacherServer {
 		res.json({ err_code: 0,  message: results})
 	}
 
+	async getResult( req, res, next){
+		const body = req.body;
+		const { results } = await teacherModel.getResult(body)
+		res.json({ err_code: 0,  message: results})
+	}
+
 	async addTeacher( req, res, next){
 		const body = req.body;
 		const { results } = await teacherModel.addTeacher(body)
