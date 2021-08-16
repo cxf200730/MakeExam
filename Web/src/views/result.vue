@@ -1,7 +1,7 @@
 <template>
 <div style="margin: 0 auto;text-align: center;margin-top: 5%;">
 
-    <div v-for="(item,index) in result">
+    <div v-for="(item,index) in result" :key="index">
     <p style="margin-bottom: 20px;">学生{{item.name}}提交了试卷，他的答案是{{item.answer}}</p>
     </div>
     <div>共{{result.length}}人提交</div>

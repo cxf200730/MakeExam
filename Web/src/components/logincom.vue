@@ -58,6 +58,11 @@ export default{
                 }
                 store.commit('UserLogin',teacherObj)
                 // console.log(store.state.UserInfo);
+                localStorage.setItem('make_id', teacherObj.id)
+                localStorage.setItem('make_name', teacherObj.name)
+                localStorage.setItem('make_phone', teacherObj.phone)
+                localStorage.setItem('make_password', teacherObj.password)
+                localStorage.setItem('make_totalexam', teacherObj.totalexam)
                 proxy.$router.push('myexam')
                 
                 }else{

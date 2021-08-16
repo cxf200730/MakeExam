@@ -4,8 +4,6 @@
         <el-main>
             <div class="content">
                 <div class="content-left">
-                    
-
                     <el-collapse v-model="activeNames" @change="handleChange">
                         <el-collapse-item title="考生信息" name="1" >
                             <div style="width: 100%;display: flex;flex-flow: row wrap; justify-content: space-around;height: auto;">
@@ -14,8 +12,6 @@
                                 <el-button type = "primary" plain round size = "mini" @click="addCode" icon="el-icon-s-cooperation">学号</el-button>
                                 <el-button type = "primary" plain round size = "mini"  icon="el-icon-message">其他信息</el-button>
                             </div>
-                            
-      
                         </el-collapse-item>
                         <el-collapse-item title="考试题型" name="2">
                             <div style="width: 100%;display: flex;flex-flow: row wrap; justify-content: space-around;height: auto;">
@@ -170,7 +166,7 @@ export default{
         const domain = ref('https://upload-z2.qiniup.com')
         // 这是七牛云空间的外链默认域名
         const qiniuaddr = ref('qxg2acp58.hn-bkt.clouddn.com')
-
+        var examTitle = ref("点击修改试卷的题目")
 
                   // 上传文件到七牛云
                 function upqiniu (req: any) {
@@ -225,6 +221,32 @@ export default{
           }
 
         const allForm:Array<IAllForm> = reactive([])
+        if(store.state.editIndex === 0){
+
+        }else{
+            proxy.$axios.post('http://localhost:3000/teacher/getexam',{
+                teacher_phone:store.state.UserInfo.phone,
+                examindex:store.state.editIndex,
+            }).then((res:any) => {
+                
+                for (let i = 0; i < res.data.message.length; i++) {
+                    const test = {
+                        examtitle:res.data.message[i].examtitle,
+                        teacher_phone:res.data.message[i].teacher_phone,
+                        examindex:res.data.message[i].examindex,
+                        ismust: res.data.message[i].ismust,
+                        imgsrc: res.data.message[i].imgsrc,
+                        score: res.data.message[i].score,
+                        optionnum:res.data.message[i].optionnum,
+                        answer:res.data.message[i].answer ,
+                    }
+                    allForm.push(test);
+                }
+                proxy.examTitle = res.data.message[0].examtitle
+                console.log(res.data.message[0].examtitle);
+            })
+        }
+
 
         const delexamItem = (index:number)=>{
             allForm.splice(index,1);
@@ -307,12 +329,14 @@ export default{
         }
         stuInfo.push(codeInput);
     };
+    
+
       function addItem(){
         dialogFormVisible.value = false;
         fileList.value = []
     
         const test = {
-            examtitle:examTitle.value,
+            examtitle:'',
             teacher_phone:store.state.UserInfo.phone,
             examindex:store.state.UserInfo.totalexam,
             ismust: addForm.ismust,
@@ -367,35 +391,28 @@ const delstuInfo = (index:number) => {
                 proxy.$axios.post('http://localhost:3000/teacher/addtopic',{
                     examtitle:examTitle.value,
                     teacher_phone:store.state.UserInfo.phone,
-                    examindex:store.state.UserInfo.totalexam,
+                    examindex:store.state.editIndex,
                     ismust:allForm[i].ismust,
                     imgsrc:allForm[i].imgsrc,
                     score:allForm[i].score,
                     optionnum:allForm[i].optionnum,
                     answer:allForm[i].answer,
                 }).then((res:any) => {
+                    
                 })    
                       
             }
             store.commit('stuInfo',stuInfo)
-             proxy.$router.push("http://localhost:8080/exam");
+            const count:string = localStorage.getItem('make_totalexam')!
+            localStorage.setItem('make_totalexam', (parseInt(count) + 1).toString())
+            proxy.$router.push("http://localhost:8080/exam");
             // let routeData = proxy.$router.resolve({ path: '/exam'});
             // window.open(routeData.href, '_blank');
         }
 
-        const makeexam = () => {
-            
-            proxy.$axios.post('http://localhost:3000/teacher/addexam',{
-                id:1604
-            }).then((res:any) => {
-                if(res.data.err_code === 0){
-                    alert("创建新的数据表成功")
-                    testPost()
-                }
-            })
-        }
+       
 
-        const examTitle = ref("点击修改试卷的题目")
+        
         return{dialogFormVisible, 
             changeTitleVisible,
             addName,
@@ -422,7 +439,6 @@ const delstuInfo = (index:number) => {
             test,
             choose,
             testPost,
-            makeexam,
 
 
             imageUrl,

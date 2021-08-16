@@ -11,7 +11,7 @@
                     </p>
                     <hr />
                     <div class="content-right-exam">
-                        <div  class="main" style="display: flex;flex-direction: column;" v-for="(item, index) in stuInfo">
+                        <div  class="main" style="display: flex;flex-direction: column;" v-for="(item, index) in stuInfo" :key="index">
                             <el-input v-model="stuNameCode[parseInt(index.toString())]" :placeholder=stuInfo[parseInt(index.toString())].title style="margin-top: 30px;width: 300px;margin-left:40px"></el-input>
                         </div>
 

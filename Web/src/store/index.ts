@@ -13,7 +13,8 @@ export default createStore({
         password: "",
         totalexam: "",
       },
-      stuInfo:[]
+      stuInfo:[],
+      editIndex:0
     }
      
   },
@@ -23,6 +24,9 @@ export default createStore({
     },
     stuInfo(state:any, stuInfo:any){ //设置参数
       state.stuInfo = stuInfo;
+    },
+    editIndex(state:any, editIndex:any){ //设置参数
+      state.editIndex = editIndex;
     }
   },
   actions: {

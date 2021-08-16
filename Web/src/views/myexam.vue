@@ -1,6 +1,8 @@
 <template>
 <div class="bg">
     <el-button style="position: absolute;right: 10%;top: 30px;"  type="primary" @click="makeExam">创建试卷</el-button>
+    <el-button style="position: absolute;right: 20%;top: 30px;"  type="warning" @click="logOut">退出登录</el-button>
+    
     <div class="title">
         <p>{{userInfo.name}}的试题列表</p>
     </div>
@@ -8,17 +10,17 @@
         <el-card shadow="hover" class="main-card" v-for="(item,index) in parseInt(userInfo.totalexam)" :key = "index">
             <template #header>
                 <div class="card-header">
-                <a class="card-title"   @click="makeExam"> <p>{{totalArray[index]}}</p></a>
+                <a class="card-title"   @click="editExam(index)"> <p>{{totalArray[index]}}</p></a>
                 <div style="font-size:12px;">
                     <span style="margin-right: 14px;">ID:126467357</span>
                     <span style="margin-right: 14px;">未发布</span>
                     <span style="margin-right: 14px;">答卷:0</span>
                     <span style="margin-right: 14px;">8月08日 16:11</span>
                 </div>
-                </div>
+                </div> 
             </template>
                 <div class="card-content">
-                    <a class="el-icon-edit" href="#">编辑考试</a>
+                    <a class="el-icon-edit"  @click="editExam(index)">编辑考试</a>
                     <a class="el-icon-share" href="#">发送考试</a>
                     <a class="el-icon-data-analysis" href="#">成绩&数据</a>
                 </div>
@@ -35,11 +37,18 @@ export default{
          const { ctx } = getCurrentInstance();
         let { proxy }:any = getCurrentInstance();
         const store = useStore()
-        let userInfo = store.state.UserInfo
+        const teacherObj = {
+            id: localStorage.getItem('make_id'),
+            name: localStorage.getItem('make_name'),
+            phone: localStorage.getItem('make_phone'),
+            password: localStorage.getItem('make_password'),
+            totalexam: localStorage.getItem('make_totalexam')!,
+        }
+        let userInfo =  teacherObj
         let examInfo;
         let totalArray:any = reactive([])
         proxy.$axios.post('http://localhost:3000/teacher/getmyexam',{
-                    phone:userInfo.phone
+                    phone:localStorage.getItem('make_phone')
         }).then((res:any) => {
         //alert("添加新的题目成功")
         console.log(res.data.message)
@@ -57,7 +66,7 @@ export default{
 
         const makeExam = () => {
             proxy.$axios.post('http://localhost:3000/teacher/addexam',{
-                phone:userInfo.phone
+                phone:localStorage.getItem('make_phone')
             }).then((res:any) => {
                 
                 const teacherObj = {
@@ -70,16 +79,32 @@ export default{
                 store.commit('UserLogin',teacherObj)
                 userInfo = store.state.UserInfo
                 console.log(userInfo);
+                store.commit('editIndex',teacherObj.totalexam)
                 proxy.$router.push('make')
             })
         }
 
+        const logOut = ()=>{
+            localStorage.removeItem('make_id'),
+            localStorage.removeItem('make_name'),
+            localStorage.removeItem('make_phone'),
+            localStorage.removeItem('make_password'),
+            localStorage.removeItem('make_totalexam'),
+            proxy.$router.push('login')
+        }
         
+        const editExam = (index:number)=>{
+            alert(index + 1)
+            store.commit('editIndex',index + 1)
+            proxy.$router.push('make')
+        }
         return{
             userInfo,
             examInfo,
             totalArray,
-            makeExam
+            makeExam,
+            logOut,
+            editExam
         }
     }
 }
