@@ -10,9 +10,9 @@
                         <el-collapse-item title="考生信息" name="1" >
                             <div style="width: 100%;display: flex;flex-flow: row wrap; justify-content: space-around;height: auto;">
                                 <el-button type = "primary" plain round size = "mini" @click="addName"  icon="el-icon-user-solid" >姓名</el-button>
-                                <el-button type = "primary" plain round size = "mini" @click="" icon="el-icon-user">基本信息</el-button>
+                                <el-button type = "primary" plain round size = "mini"  icon="el-icon-user">基本信息</el-button>
                                 <el-button type = "primary" plain round size = "mini" @click="addCode" icon="el-icon-s-cooperation">学号</el-button>
-                                <el-button type = "primary" plain round size = "mini" @click="" icon="el-icon-message">其他信息</el-button>
+                                <el-button type = "primary" plain round size = "mini"  icon="el-icon-message">其他信息</el-button>
                             </div>
                             
       
@@ -53,22 +53,24 @@
                     </div>
                     <hr />
                     <div class="content-right-exam">
-                        <div  class="main" style="display: flex;flex-direction: column;" v-for="(item, index) in stuInfo">
+                        <div  class="main" style="display: flex;flex-direction: column;" v-for="(item, index) in stuInfo" :key = "index">
                             <el-input v-model="stuName" :placeholder=stutitle[parseInt(index.toString())] style="margin-top: 30px;width: 300px;margin-left:40px"></el-input>
+                            <el-button @click="delstuInfo(index)">删除</el-button>
                         </div>
 
                         <div class="main" style="display: flex;flex-direction: column;" v-for="(item,index) in allForm" :key = index>
                            <div class="exam-item">
                                 <div style="width: 750px;height: auto;margin-top: 30px;display:flex ">
                                     <el-badge  :hidden = !item.ismust  type = "info" value="*" class="item">
-                                    {{index + 1}}.
-                                </el-badge>
+                                        {{index + 1}}.
+                                    </el-badge>
                                     <img  :src= item.imgsrc  style="width: 600px;margin-left:30px"/>
                                     （{{item.score}}分）
                                 </div>
                                 <el-radio-group v-model=item.answer style="margin-top: 20px;" v-for = "index2 in parseInt(item.optionnum.toString())" :key = index2>
                                     <el-radio :label=index2 style = "margin-left:40px">{{choose[index2 - 1]}}</el-radio>
                                 </el-radio-group>
+                                <el-button @click="delexamItem(index)">删除</el-button>
                             </div>
                         </div>
                         <el-button type = "success" style="width: 40%;margin: 30px 30%;" @click="testPost">提交试卷</el-button>
@@ -183,7 +185,7 @@ export default{
                     filetype = 'jpg'
                   }
                   // 重命名要上传的文件
-                  const keyname = 'makeexam' + Math.floor(Math.random() * 100) + '.' + filetype
+                  const keyname = 'makeexam' + new Date().getTime() + '.' + filetype
                   // 从后端获取上传凭证token
                   proxy.$axios.get('/up/token').then((res: any) => {
                     console.log(res)
@@ -221,8 +223,12 @@ export default{
                 score:number,
                 optionnum:number | string
           }
+
         const allForm:Array<IAllForm> = reactive([])
 
+        const delexamItem = (index:number)=>{
+            allForm.splice(index,1);
+        }
 
     
 
@@ -321,6 +327,11 @@ export default{
         imageUrl.value = ""
       }
 
+const delstuInfo = (index:number) => {
+    stuInfo.splice(index,1);
+    stutitle.splice(index,1);
+}
+
       const options3 = reactive( [{
           value: 1,
           label: 'A'
@@ -392,6 +403,7 @@ export default{
             stuName,
             stutitle,
             stuInfo,
+            delstuInfo,
             examTitle,
             formLabelWidth, 
             options, 
@@ -406,6 +418,7 @@ export default{
             options3,
             value,
             allForm,
+            delexamItem,
             test,
             choose,
             testPost,

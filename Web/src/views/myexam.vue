@@ -5,7 +5,7 @@
         <p>{{userInfo.name}}的试题列表</p>
     </div>
     <div class="main">
-        <el-card shadow="hover" class="main-card" v-for="(item,index) in parseInt(userInfo.totalexam)">
+        <el-card shadow="hover" class="main-card" v-for="(item,index) in parseInt(userInfo.totalexam)" :key = "index">
             <template #header>
                 <div class="card-header">
                 <a class="card-title"   @click="makeExam"> <p>{{totalArray[index]}}</p></a>

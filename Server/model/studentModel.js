@@ -3,7 +3,7 @@ const db = require('../config/db.js')
 class studentModel {
 	//查找所有
 	findAll(){
-		return db.query( 'select * from student order by id ASC', [])
+		return db.query( 'select * from student order by id desc', [])
 	}
 
     //提交做的试卷
